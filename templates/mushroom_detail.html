@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Кнопка назад -->
+            <a href="javascript:history.back()" class="btn btn-outline-secondary mb-3">
+                ← Назад
+            </a>
+            
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1>{{ mushroom.russian_name }}</h1>
+                    <p class="text-muted lead"><i>{{ mushroom.latin_name }}</i></p>
+                </div>
+                <span class="badge bg-{{ mushroom.get_edibility_color }} fs-5">
+                    {{ mushroom.get_edibility_display }}
+                </span>
+            </div>
+
+            <div class="row">
+                <!-- Фото и основная информация -->
+                <div class="col-md-5">
+                    <div class="card">
+                        {% if mushroom.photo %}
+                            <img src="{{ mushroom.photo.url }}" class="card-img-top" alt="{{ mushroom.russian_name }}" style="max-height: 400px; object-fit: cover;">
+                        {% else %}
+                            <div class="text-center py-5 bg-light">
+                                <i class="fas fa-camera fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Фотография отсутствует</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title">Основная информация</h5>
+                            <p><strong>Тип гриба:</strong> {{ mushroom.get_mushroom_type_display }}</p>
+                            <p><strong>Сезон сбора:</strong> {{ mushroom.season }}</p>
+                            <p><strong>Места произрастания:</strong> {{ mushroom.habitat }}</p>
+                            
+                            {% if mushroom.distribution %}
+                            <p><strong>Распространение:</strong><br>{{ mushroom.distribution|linebreaks }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Детальное описание -->
+                <div class="col-md-7">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">📋 Подробное описание</h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text" style="white-space: pre-line; font-size: 1.1em; line-height: 1.6;">
+                                {{ mushroom.description }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Предупреждение для ядовитых грибов -->
+                    {% if mushroom.edibility == 'poisonous' or mushroom.edibility == 'deadly' %}
+                    <div class="alert alert-danger mt-3">
+                        <h5><i class="fas fa-skull-crossbones"></i> ОПАСНО!</h5>
+                        <p class="mb-0">Этот гриб ядовит! Не собирайте и не употребляйте его в пищу.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Предупреждение для условно-съедобных -->
+                    {% if mushroom.edibility == 'conditionally_edible' %}
+                    <div class="alert alert-warning mt-3">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Внимание!</h5>
+                        <p class="mb-0">Этот гриб требует специальной обработки перед употреблением.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

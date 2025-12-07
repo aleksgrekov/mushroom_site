@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">🎯 Начало квиза: {{ quiz.name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h5>Уровень: {{ quiz.get_level_display }}</h5>
+                    <p class="text-muted">Количество вопросов: {{ quiz.questions_count }}</p>
+                </div>
+                
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="user_name" class="form-label">Как вас зовут?</label>
+                        <input type="text" class="form-control form-control-lg" 
+                               id="user_name" name="user_name" 
+                               placeholder="Введите ваше имя" required
+                               value="{{ request.POST.user_name }}">
+                        <div class="form-text">Мы сохраним ваш результат с этим именем</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            🚀 Начать квиз
+                        </button>
+                        <a href="{% url 'quiz_home' %}" class="btn btn-outline-secondary">
+                            ← Назад к выбору квиза
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

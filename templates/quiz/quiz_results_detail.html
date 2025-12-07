@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">📊 Детальные результаты</h1>
+            <p class="lead">Результаты квиза для <strong>{{ quiz_result.user_name }}</strong></p>
+        </div>
+
+        <!-- Общая статистика -->
+        <div class="card shadow-lg mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">📈 Общая статистика</h4>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="display-6 text-primary">{{ quiz_result.percentage }}%</div>
+                        <small class="text-muted">Правильных ответов</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-success">{{ quiz_result.correct_answers }}/{{ quiz_result.total_questions }}</div>
+                        <small class="text-muted">Правильные ответы</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-danger">{{ quiz_result.wrong_answers }}</div>
+                        <small class="text-muted">Неправильные ответы</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="display-6 text-warning">{{ quiz_result.score }}</div>
+                        <small class="text-muted">Баллов</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Детальные результаты по вопросам -->
+        <div class="card shadow-lg">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">📝 Ответы на вопросы</h4>
+            </div>
+            <div class="card-body">
+                {% for user_answer in detailed_results %}
+                <div class="question-result mb-4 p-3 border rounded {% if user_answer.is_correct %}border-success bg-light{% else %}border-danger bg-light{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-0">Вопрос {{ forloop.counter }}</h5>
+                        <span class="badge {% if user_answer.is_correct %}bg-success{% else %}bg-danger{% endif %}">
+                            {% if user_answer.is_correct %}✅ Правильно{% else %}❌ Неправильно{% endif %}
+                        </span>
+                    </div>
+                    
+                    <p class="fw-bold mb-3">{{ user_answer.question.question_text }}</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Ваш ответ:</h6>
+                            <div class="mb-2">
+                                {% for answer in user_answer.selected_answers.all %}
+                                <span class="badge bg-secondary me-1 mb-1">{{ answer.answer_text }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Правильный ответ:</h6>
+                            <div class="mb-2">
+                                {% for answer in user_answer.get_correct_answers %}
+                                <span class="badge bg-success me-1 mb-1">{{ answer.answer_text }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if not user_answer.is_correct %}
+                    <div class="alert alert-warning mt-2 mb-0">
+                        <small>
+                            <strong>Объяснение:</strong> 
+                            Вы выбрали неправильный вариант. Правильный ответ отмечен зеленым цветом.
+                        </small>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Навигация -->
+        <div class="text-center mt-4">
+            <a href="{% url 'quiz_home' %}" class="btn btn-primary">
+                🏠 На главную квизов
+            </a>
+            <a href="{% url 'quiz_start' quiz_result.quiz.id %}" class="btn btn-outline-primary">
+                🔄 Пройти квиз снова
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.question-result {
+    transition: all 0.3s ease;
+}
+.question-result:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

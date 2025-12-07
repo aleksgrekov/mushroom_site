@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">🎉 Результаты квиза</h1>
+            <p class="lead">Спасибо за участие, <strong>{{ user_name }}</strong>!</p>
+        </div>
+
+        <div class="row">
+            <!-- Основные результаты -->
+            <div class="col-md-8">
+                <div class="card shadow-lg mb-4">
+                    <div class="card-header {% if percentage >= 80 %}bg-success{% elif percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                        <h4 class="mb-0">{{ quiz.name }} - Результат</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="display-6 {% if percentage >= 80 %}text-success{% elif percentage >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                                    {{ percentage }}%
+                                </div>
+                                <small class="text-muted">Правильных ответов</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="display-6 text-primary">{{ score }}</div>
+                                <small class="text-muted">Баллов</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="display-6 text-success">{{ correct_answers }}/{{ total_questions }}</div>
+                                <small class="text-muted">Правильные ответы</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="display-6 text-danger">{{ wrong_answers }}</div>
+                                <small class="text-muted">Ошибки</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Топ результатов -->
+                {% if top_results %}
+                <div class="card shadow-lg">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">🏆 Топ-5 результатов</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Место</th>
+                                        <th>Имя</th>
+                                        <th>Результат</th>
+                                        <th>Баллы</th>
+                                        <th>Дата</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for result in top_results %}
+                                    <tr {% if result.id == quiz_result_id %}class="table-success"{% endif %}>
+                                        <td>
+                                            {% if forloop.first %}🥇
+                                            {% elif forloop.counter == 2 %}🥈
+                                            {% elif forloop.counter == 3 %}🥉
+                                            {% else %}#{{ forloop.counter }}{% endif %}
+                                        </td>
+                                        <td>{{ result.user_name }}</td>
+                                        <td>
+                                            <span class="badge {% if result.percentage >= 80 %}bg-success{% elif result.percentage >= 60 %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ result.percentage }}%
+                                            </span>
+                                        </td>
+                                        <td>{{ result.score }}</td>
+                                        <td><small>{{ result.created_at|date:"d.m.Y H:i" }}</small></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Боковая панель с действиями -->
+            <div class="col-md-4">
+                <div class="card shadow-lg">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Действия</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            {% if basic_quiz_id %}
+                            <a href="{% url 'quiz_start' basic_quiz_id %}" class="btn btn-outline-primary">
+                                🎯 Базовый квиз
+                            </a>
+                            {% endif %}
+                            
+                            {% if advanced_quiz_id %}
+                            <a href="{% url 'quiz_start' advanced_quiz_id %}" class="btn btn-outline-warning">
+                                🚀 Продвинутый квиз
+                            </a>
+                            {% endif %}
+                            
+                            {% if expert_quiz_id %}
+                            <a href="{% url 'quiz_start' expert_quiz_id %}" class="btn btn-outline-danger">
+                                💪 Экспертный квиз
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{% url 'quiz_home' %}" class="btn btn-outline-secondary">
+                                📋 Все квизы
+                            </a>
+                            
+                            <a href="{% url 'export_quiz_results' %}" class="btn btn-success">
+                                📊 Выгрузить в Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

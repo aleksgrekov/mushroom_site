@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center">
+            <h1 class="mb-4">🎓 Квиз по грибам</h1>
+            <p class="lead mb-5">Проверьте свои знания о грибах.</p>
+            
+            {% if quizzes %}
+            <div class="row justify-content-center">
+                {% for quiz in quizzes %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        <div class="card-header 
+                            {% if quiz.level == 'basic' %}bg-success
+                            {% elif quiz.level == 'advanced' %}bg-warning
+                            {% else %}bg-danger{% endif %} text-white text-center">
+                            <h4 class="mb-0">
+                                {% if quiz.level == 'basic' %}🎯
+                                {% elif quiz.level == 'advanced' %}🚀
+                                {% else %}🔬{% endif %}
+                                {{ quiz.name }}
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ quiz.description }}</p>
+                            <div class="mb-3">
+                                <span class="badge bg-primary">{{ quiz.questions_count }} вопросов</span>
+                                <span class="badge 
+                                    {% if quiz.level == 'basic' %}bg-success
+                                    {% elif quiz.level == 'advanced' %}bg-warning
+                                    {% else %}bg-danger{% endif %}">
+                                    {% if quiz.level == 'basic' %}Для начинающих
+                                    {% elif quiz.level == 'advanced' %}Для опытных
+                                    {% else %}Для экспертов{% endif %}
+                                </span>
+                            </div>
+                            <ul class="list-unstyled small text-start">
+                                <li>✅ +10 баллов за правильный ответ</li>
+                                <li>⏱️ Время не ограничено</li>
+                                <li>📊 Результат после каждого вопроса</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer text-center">
+                            <a href="{% url 'quiz_start' quiz.id %}" class="btn 
+                                {% if quiz.level == 'basic' %}btn-success
+                                {% elif quiz.level == 'advanced' %}btn-warning
+                                {% else %}btn-danger{% endif %} btn-lg w-100">
+                                Начать квиз
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                <h4>⚠️ Квизы пока не готовы</h4>
+                <p>Данные для квиза загружаются. Пожалуйста, попробуйте позже.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary">На главную</a>
+            </div>
+            {% endif %}
+            
+            <div class="row mt-5">
+                <div class="col-md-8 mx-auto">
+                    <div class="alert alert-info">
+                        <h5>📊 Как работает квиз?</h5>
+                        <ul class="mb-0">
+                            <li><strong>Базовый уровень</strong> - простые вопросы по общей микологии для начинающих</li>
+                            <li><strong>Продвинутый уровень</strong> - вопросы для опытных грибников с хорошими знаниями микологии</li>
+                            <li><strong>Уровень эксперта</strong> - сложные вопросы для экспертов в области микологии</li>
+                            <li>Нажимайте на варианты ответов и следите за своим прогрессом!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

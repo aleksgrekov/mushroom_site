@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Атлас грибов Челябинской области</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .mushroom-card {
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        .mushroom-card:hover {
+            transform: translateY(-5px);
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .nav-link {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-mushroom"></i> Атлас грибов Челябинской области
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link" href="{% url 'kingdom_info' %}">
+                        <i class="fas fa-microscope"></i> Царство Грибы
+                    </a>
+                    <a class="nav-link" href="{% url 'edible_mushrooms' %}">
+                        <i class="fas fa-utensils"></i> Съедобные
+                    </a>
+                    <a class="nav-link" href="{% url 'poisonous_mushrooms' %}">
+                        <i class="fas fa-skull-crossbones"></i> Ядовитые
+                    </a>
+                    <a class="nav-link" href="{% url 'gallery' %}">
+                        <i class="fas fa-images"></i> Галерея
+                    </a>
+                    <a class="nav-link" href="{% url 'interactive_identifier' %}">
+                        <i class="fas fa-search"></i> Определитель
+                    </a>
+                    <!-- НОВАЯ ССЫЛКА НА КВИЗ -->
+                    <a class="nav-link" href="{% url 'quiz_home' %}">
+                        <i class="fas fa-graduation-cap"></i> Квиз
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Футер -->
+    <footer class="bg-dark text-light mt-5 py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>🍄 Электронный атлас грибов</h5>
+                    <p class="mb-0">Челябинская область, 2024</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">
+                        Образовательный проект для изучения грибного разнообразия региона
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">☠️ Ядовитые грибы</h1>
+            
+            <div class="alert alert-danger">
+                <strong>Внимание!</strong> Эти грибы опасны для здоровья!
+            </div>
+            
+            <div class="row">
+                {% for mushroom in mushrooms %}
+                <div class="col-md-4 mb-4">
+                    <a href="{% url 'mushroom_detail' mushroom.id %}" class="text-decoration-none">
+                        <div class="card mushroom-card h-100 border-danger">
+                            <!-- Фото гриба -->
+                            {% if mushroom.photo %}
+                            <img src="{{ mushroom.photo.url }}" class="card-img-top" alt="{{ mushroom.russian_name }}" style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-camera fa-2x mb-2"></i>
+                                    <p class="small mb-0">Нет фото</p>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-body">
+                                <h5 class="card-title text-dark">{{ mushroom.russian_name }}</h5>
+                                <p class="card-text text-muted"><i>{{ mushroom.latin_name }}</i></p>
+                                <span class="badge bg-{{ mushroom.get_edibility_color }}">
+                                    {{ mushroom.get_edibility_display }}
+                                </span>
+                                <p class="card-text text-dark mt-2">{{ mushroom.description|truncatewords:30 }}</p>
+                                <p class="text-dark"><strong>Сезон:</strong> {{ mushroom.season }}</p>
+                                {% if mushroom.distribution %}
+                                <p class="text-dark"><small><strong>Распространение:</strong> {{ mushroom.distribution|truncatewords:8 }}</small></p>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer bg-transparent border-danger">
+                                <small class="text-danger">Нажмите для подробностей →</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

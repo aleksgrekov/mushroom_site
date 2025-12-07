@@ -1,0 +1,346 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Левая панель - правильные ответы -->
+        <div class="col-md-3">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body text-center">
+                    <h3>{{ correct_answers }}</h3>
+                    <p class="mb-0">Правильно</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Центральная панель - вопрос -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Вопрос {{ current_question }} из {{ total_questions }}</h4>
+                        <span class="badge bg-light text-primary fs-6">{{ quiz.name }}</span>
+                    </div>
+                </div>
+                
+                <!-- Прогресс-бар -->
+                <div class="card-body">
+                    <div class="progress mb-4" style="height: 10px;">
+                        <div class="progress-bar bg-primary" role="progressbar" 
+                             style="width: {{ progress }}%;" 
+                             aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+                    
+                    <h5 class="card-title mb-4">{{ question.question_text }}</h5>
+                    
+                    <!-- Индикатор типа вопроса -->
+                    {% if question.question_type == 'multiple' %}
+                    <div class="alert alert-info py-2 mb-3">
+                        <small><strong>📝 Вопрос с множественным выбором:</strong> Выберите все правильные ответы</small>
+                    </div>
+                    {% endif %}
+                    
+                    <div id="answers-container">
+                        {% for answer in answers %}
+                        <div class="form-check mb-3 answer-option" data-answer-id="{{ answer.id }}">
+                            {% if question.question_type == 'multiple' %}
+                            <input class="form-check-input" type="checkbox" name="answer" 
+                                   id="answer{{ answer.id }}" value="{{ answer.id }}">
+                            {% else %}
+                            <input class="form-check-input" type="radio" name="answer" 
+                                   id="answer{{ answer.id }}" value="{{ answer.id }}">
+                            {% endif %}
+                            <label class="form-check-label fs-5" for="answer{{ answer.id }}">
+                                {{ answer.answer_text }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button id="submit-answer" class="btn btn-primary btn-lg w-100 mt-3" disabled>
+                        {% if question.question_type == 'multiple' %}
+                        Проверить выбранные ответы
+                        {% else %}
+                        Ответить
+                        {% endif %}
+                    </button>
+                    
+                    <div id="result-feedback" class="mt-3" style="display: none;">
+                        <!-- Здесь будет результат -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Правая панель - неправильные ответы -->
+        <div class="col-md-3">
+            <div class="card bg-danger text-white mb-4">
+                <div class="card-body text-center">
+                    <h3>{{ wrong_answers }}</h3>
+                    <p class="mb-0">Ошибки</p>
+                </div>
+            </div>
+            
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3>{{ score }}</h3>
+                    <p class="mb-0">Баллы</p>
+                </div>
+            </div>
+
+            <!-- Подсказка по уровням -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6>Уровни сложности:</h6>
+                    <div class="d-flex flex-column gap-2">
+                        <span class="badge bg-success">Базовый</span>
+                        <span class="badge bg-warning text-dark">Продвинутый</span>
+                        <span class="badge bg-danger">Эксперт</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const answerOptions = document.querySelectorAll('.answer-option');
+    const submitButton = document.getElementById('submit-answer');
+    const resultFeedback = document.getElementById('result-feedback');
+    const isMultipleChoice = document.querySelector('input[type="checkbox"]') !== null;
+    
+    console.log('Quiz page loaded'); // Отладочное сообщение
+    
+    // Функция проверки, выбран ли хотя бы один ответ
+    function checkIfAnswerSelected() {
+        if (isMultipleChoice) {
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const isSelected = checkedBoxes.length > 0;
+            submitButton.disabled = !isSelected;
+            console.log('Multiple choice selected:', checkedBoxes.length); // Отладка
+        } else {
+            const selectedRadio = document.querySelector('input[type="radio"]:checked');
+            const isSelected = !!selectedRadio;
+            submitButton.disabled = !isSelected;
+            console.log('Single choice selected:', isSelected); // Отладка
+        }
+    }
+    
+    // Выбор ответа
+    answerOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            
+            const input = this.querySelector('input');
+            
+            if (isMultipleChoice) {
+                input.checked = !input.checked;
+                this.classList.toggle('selected', input.checked);
+            } else {
+                answerOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.querySelector('input').checked = false;
+                });
+                this.classList.add('selected');
+                input.checked = true;
+            }
+            
+            checkIfAnswerSelected();
+        });
+    });
+    
+    // Обработка клика на input
+    document.querySelectorAll('.form-check-input').forEach(input => {
+        input.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const option = this.closest('.answer-option');
+            
+            if (isMultipleChoice) {
+                option.classList.toggle('selected', this.checked);
+            } else {
+                answerOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+            }
+            
+            checkIfAnswerSelected();
+        });
+    });
+    
+    // Отправка ответа
+    submitButton.addEventListener('click', function() {
+        console.log('Submit button clicked'); // Отладка
+        
+        let selectedAnswers = [];
+        
+        if (isMultipleChoice) {
+            const checkedBoxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            checkedBoxes.forEach(checkbox => {
+                selectedAnswers.push(checkbox.value);
+            });
+        } else {
+            const selectedRadio = document.querySelector('input[type="radio"]:checked');
+            if (selectedRadio) {
+                selectedAnswers.push(selectedRadio.value);
+            }
+        }
+        
+        console.log('Selected answers:', selectedAnswers); // Отладка
+        
+        if (selectedAnswers.length === 0) {
+            alert('Пожалуйста, выберите ответ!');
+            return;
+        }
+        
+        // Блокируем кнопку и варианты ответов
+        submitButton.disabled = true;
+        answerOptions.forEach(option => {
+            option.style.pointerEvents = 'none';
+        });
+        
+        // Показываем индикатор загрузки
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Проверка...';
+        
+        // Подготавливаем данные для отправки
+        const formData = new FormData();
+        if (isMultipleChoice) {
+            selectedAnswers.forEach(id => {
+                formData.append('answer_ids', id);
+            });
+        } else {
+            formData.append('answer_id', selectedAnswers[0]);
+        }
+        formData.append('question_type', '{{ question.question_type }}');
+        
+        // Отправляем запрос
+        fetch('{% url "quiz_check_answer" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => {
+            console.log('Response status:', response.status); // Отладка
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data); // Отладка
+            
+            // Восстанавливаем кнопку
+            submitButton.innerHTML = '{% if question.question_type == "multiple" %}Проверить выбранные ответы{% else %}Ответить{% endif %}';
+            
+            // Показываем результат
+            if (data.is_correct) {
+                resultFeedback.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Правильно!</h5>
+                        <p class="mb-0">+10 баллов</p>
+                    </div>
+                `;
+            } else {
+                let correctAnswersText = '';
+                if (data.correct_answers && data.correct_answers.length > 0) {
+                    if (data.correct_answers.length === 1) {
+                        correctAnswersText = `<p class="mb-0"><strong>Правильный ответ:</strong> ${data.correct_answers[0]}</p>`;
+                    } else {
+                        correctAnswersText = `<p class="mb-0"><strong>Правильные ответы:</strong> ${data.correct_answers.join(', ')}</p>`;
+                    }
+                }
+                
+                resultFeedback.innerHTML = `
+                    <div class="alert alert-danger">
+                        <h5>❌ Неправильно</h5>
+                        ${correctAnswersText}
+                    </div>
+                `;
+                
+                // Подсвечиваем правильные ответы
+                if (data.correct_answer_ids) {
+                    answerOptions.forEach(option => {
+                        const answerId = parseInt(option.getAttribute('data-answer-id'));
+                        if (data.correct_answer_ids.includes(answerId)) {
+                            option.classList.add('correct-highlight');
+                        }
+                    });
+                }
+            }
+            
+            resultFeedback.style.display = 'block';
+            
+            // Переходим к следующему вопросу через 3 секунды
+            setTimeout(() => {
+                window.location.href = '{% url "quiz_question" %}';
+            }, 3000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Восстанавливаем кнопку в случае ошибки
+            submitButton.innerHTML = '{% if question.question_type == "multiple" %}Проверить выбранные ответы{% else %}Ответить{% endif %}';
+            submitButton.disabled = false;
+            answerOptions.forEach(option => {
+                option.style.pointerEvents = 'auto';
+            });
+            alert('Произошла ошибка при отправке ответа. Пожалуйста, попробуйте еще раз.');
+        });
+    });
+    
+    // Инициализация - проверяем, выбран ли ответ при загрузке
+    checkIfAnswerSelected();
+});
+</script>
+
+<style>
+.answer-option {
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    margin-bottom: 10px;
+}
+
+.answer-option:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+.answer-option.selected {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+    transform: translateY(-2px);
+}
+
+.form-check-input {
+    transform: scale(1.2);
+    margin-right: 10px;
+}
+
+.correct-highlight {
+    background-color: #d4edda !important;
+    border-color: #c3e6cb !important;
+    color: #155724;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+</style>
+{% endblock %}
