@@ -1,0 +1,46 @@
+# Байткод / кэш Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+
+# Кэш mypy / pytest / временные файлы
+.mypy_cache/
+.pytest_cache/
+*.log
+*.tmp
+
+# Конфигурации IDE / редакторов
+.idea/
+*.iml
+*.swp
+*.swo
+.DS_Store
+
+# Локальные виртуальные окружения
+.venv/
+.venv-dev/
+
+# Файлы Git
+.git/
+.gitignore
+
+# Файлы Docker
+Dockerfile
+.dockerignore
+*.yml
+
+# Конфигурации и файлы с секретами
+#.env
+.env.*
+#.envrc
+
+# pyenv
+.python-version
+
+# Артефакты сборки
+build/
+dist/
+
+# БД
+*.sqlite3

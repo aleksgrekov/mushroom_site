@@ -1,0 +1,10 @@
+services:
+  mushroom_site:
+    container_name: "mushroom_site"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+    restart: unless-stopped
+    tty: true
